@@ -18,9 +18,14 @@ class ListspiderSpider(scrapy.Spider):
         html_name = response.url.split('/')[-1]
         file_name = self.get_file_name(html_name)
         mode = 'w' if self.is_first_page(html_name) else 'a'
+
+        str = ''
+        for item in response.xpath('//div[@class="w740"]'):
+            if len(item.xpath('.//div[@class="relyhf"]')) == 0:
+                str += '\n'.join(item.xpath('./div/text()').extract())
+
         with open(file_name, mode) as f:
-            f.write('\n'.join(response.xpath(
-                '//div[@class="conttxt"]/div[@class="w740"]/div//text()').extract()).encode('utf8'))
+            f.write(str.encode('utf8'))
 
         next_page = response.css('a.afpage::attr(href)').extract_first()
         if next_page != None:
